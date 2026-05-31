@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSF Security MIS Dashboard 2026</title>
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { background: #0a0a0f; }
+      .dash { background: #0d0d14; min-height: 100vh; padding: 0; font-family: 'Segoe UI', sans-serif; color: #e0e0f0; }
+      .header { background: linear-gradient(135deg, #0d0d14 0%, #12122a 50%, #0d0d14 100%); border-bottom: 1px solid #1e1e3a; padding: 18px 28px; display: flex; justify-content: space-between; align-items: center; }
+      .header-left h1 { font-size: 20px; font-weight: 700; color: #fff; letter-spacing: 1px; text-transform: uppercase; }
+      .header-left .subtitle { font-size: 11px; color: #7a7aaa; margin-top: 3px; letter-spacing: 2px; text-transform: uppercase; }
+      .header-right { text-align: right; font-size: 11px; color: #7a7aaa; }
+      .header-right .prepared { color: #00d4ff; font-weight: 600; font-size: 12px; }
+      .badge { display: inline-block; background: #00d4ff22; border: 1px solid #00d4ff44; color: #00d4ff; font-size: 10px; padding: 3px 10px; border-radius: 20px; margin-top: 4px; letter-spacing: 1px; text-transform: uppercase; }
+      .controls { background: #12121f; border-bottom: 1px solid #1e1e3a; padding: 12px 28px; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+      .controls label { font-size: 11px; color: #7a7aaa; text-transform: uppercase; letter-spacing: 1px; margin-right: 4px; }
+      .controls select { background: #1a1a2e; border: 1px solid #2a2a4a; color: #cccce8; padding: 7px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; outline: none; }
+      .controls select:hover { border-color: #00d4ff44; }
+      .btn-reset { background: #ff4d6d22; border: 1px solid #ff4d6d66; color: #ff4d6d; padding: 7px 18px; border-radius: 6px; font-size: 12px; cursor: pointer; letter-spacing: 1px; text-transform: uppercase; font-weight: 600; transition: all .2s; }
+      .btn-reset:hover { background: #ff4d6d44; }
+      .period-badge { background: #00d4ff11; border: 1px solid #00d4ff33; color: #00d4ff; padding: 7px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+      .content { padding: 20px 28px; }
+      .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)); gap: 14px; margin-bottom: 20px; }
+      .card { background: #12121f; border-radius: 10px; padding: 16px 18px; border: 1px solid #1e1e3a; position: relative; overflow: hidden; transition: transform .2s, border-color .2s; }
+      .card:hover { transform: translateY(-2px); border-color: #2a2a5a; }
+      .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+      .card.c1::before { background: linear-gradient(90deg, #00d4ff, #0099cc); }
+      .card.c2::before { background: linear-gradient(90deg, #7c3aed, #a855f7); }
+      .card.c3::before { background: linear-gradient(90deg, #f97316, #fb923c); }
+      .card.c4::before { background: linear-gradient(90deg, #10b981, #34d399); }
+      .card.c5::before { background: linear-gradient(90deg, #06b6d4, #22d3ee); }
+      .card.c6::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+      .card.c7::before { background: linear-gradient(90deg, #ef4444, #f87171); }
+      .card.c8::before { background: linear-gradient(90deg, #ec4899, #f472b6); }
+      .card.c9::before { background: linear-gradient(90deg, #6366f1, #818cf8); }
+      .card-icon { font-size: 20px; margin-bottom: 10px; }
+      .card-label { font-size: 10px; color: #6b6b9a; text-transform: uppercase; letter-spacing: 1px; line-height: 1.3; margin-bottom: 8px; font-weight: 600; }
+      .card-value { font-size: 22px; font-weight: 700; color: #fff; }
+      .card-unit { font-size: 11px; color: #6b6b9a; margin-top: 2px; }
+      .charts-row { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; margin-bottom: 16px; }
+      .charts-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+      .chart-box { background: #12121f; border-radius: 10px; border: 1px solid #1e1e3a; padding: 18px; }
+      .chart-title { font-size: 12px; font-weight: 700; color: #9090c0; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px; }
+      .chart-sub { font-size: 10px; color: #4a4a6a; margin-bottom: 14px; letter-spacing: 0.5px; }
+      .chart-wrap { position: relative; width: 100%; }
+      .legend-row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 10px; font-size: 11px; color: #7a7aaa; }
+      .leg-dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 5px; vertical-align: middle; }
+      .footer { border-top: 1px solid #1e1e3a; padding: 12px 28px; text-align: center; font-size: 10px; color: #3a3a5a; letter-spacing: 1px; text-transform: uppercase; }
+      .no-data { color: #ff4d6d; font-size: 13px; text-align: center; padding: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="dash">
+  <div class="header">
+    <div class="header-left">
+      <h1>🛡 Touch Stone Foundation — Security MIS Report</h1>
+      <div class="subtitle">Jaipur Operations &nbsp;|&nbsp; Management Information System &nbsp;|&nbsp; 2026</div>
+    </div>
+    <div class="header-right">
+      <div class="prepared">MIS REPORT PREPARED BY</div>
+      <div style="font-size:13px; color:#fff; font-weight:700; margin-top:3px;">CSO — RAJKUMAR CHOUDHARY</div>
+      <div class="badge">Chief Security Officer</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <label>Month:</label>
+    <select id="monthSel">
+      <option value="all">All Months</option>
+      <option value="JAN-2026">January 2026</option>
+      <option value="FEB-2026">February 2026</option>
+      <option value="MARCH-2026">March 2026</option>
+      <option value="APR-2026">April 2026</option>
+      <option value="MAY-2026">May 2026</option>
+      <option value="JUNE-2026">June 2026</option>
+      <option value="JULY-2026">July 2026</option>
+      <option value="AUG-2026">August 2026</option>
+      <option value="SEPT-2026">September 2026</option>
+      <option value="OCT-2026">October 2026</option>
+      <option value="NOV-2026">November 2026</option>
+      <option value="DEC-2026">December 2026</option>
+    </select>
+    <label>Year:</label>
+    <select id="yearSel">
+      <option value="2026">2026</option>
+    </select>
+    <button class="btn-reset" onclick="resetFilters()">⟳ Reset</button>
+    <span class="period-badge" id="periodBadge">All Months · 2026</span>
+  </div>
+
+  <div class="content">
+    <div class="cards-grid" id="cardsGrid"></div>
+
+    <div class="charts-row">
+      <div class="chart-box">
+        <div class="chart-title">Monthly Total Cost Trend</div>
+        <div class="chart-sub">MONTHLY EXPENDITURE OVERVIEW — ₹ (INR)</div>
+        <div class="legend-row">
+          <span><span class="leg-dot" style="background:#6366f1;"></span>Total Cost</span>
+          <span><span class="leg-dot" style="background:#10b981;"></span>SIS Regular</span>
+          <span><span class="leg-dot" style="background:#f97316;"></span>SIS Additional</span>
+        </div>
+        <div class="chart-wrap" style="height:240px;">
+          <canvas id="trendChart" role="img" aria-label="Monthly cost trend chart for 2026"></canvas>
+        </div>
+      </div>
+      <div class="chart-box">
+        <div class="chart-title">Cost Breakdown</div>
+        <div class="chart-sub">SALARY & COST DISTRIBUTION</div>
+        <div class="legend-row" id="pieLegend"></div>
+        <div class="chart-wrap" style="height:230px;">
+          <canvas id="pieChart" role="img" aria-label="Cost breakdown pie chart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="charts-row2">
+      <div class="chart-box">
+        <div class="chart-title">Highest vs Lowest Salary</div>
+        <div class="chart-sub">SIS (REGULAR) — MONTHLY COMPARISON</div>
+        <div class="legend-row">
+          <span><span class="leg-dot" style="background:#10b981;"></span>Highest Month</span>
+          <span><span class="leg-dot" style="background:#ef4444;"></span>Lowest Month</span>
+          <span><span class="leg-dot" style="background:#7c3aed;"></span>All Months</span>
+        </div>
+        <div class="chart-wrap" style="height:220px;">
+          <canvas id="salaryChart" role="img" aria-label="Highest and lowest salary comparison chart"></canvas>
+        </div>
+      </div>
+      <div class="chart-box">
+        <div class="chart-title">Man Days & Staff Analysis</div>
+        <div class="chart-sub">TSF VS SIS — MONTHLY DEPLOYMENT</div>
+        <div class="legend-row">
+          <span><span class="leg-dot" style="background:#00d4ff;"></span>TSF Man Days</span>
+          <span><span class="leg-dot" style="background:#f59e0b;"></span>SIS Man Days</span>
+          <span><span class="leg-dot" style="background:#ef4444;"></span>Shortage</span>
+        </div>
+        <div class="chart-wrap" style="height:220px;">
+          <canvas id="manChart" role="img" aria-label="Man days and staff shortage analysis chart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">Touch Stone Foundation — Jaipur &nbsp;|&nbsp; Security MIS Report 2026 &nbsp;|&nbsp; Prepared by CSO Rajkumar Choudhary &nbsp;|&nbsp; CONFIDENTIAL</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const RAW = {
+  'JAN-2026':   { tsf:28100, sisReg:254109, sisAdd:21808, manTSF:31,  manSIS:345, fest:31, short:117, inc:0,  total:304017 },
+  'FEB-2026':   { tsf:28100, sisReg:254650, sisAdd:25000, manTSF:28,  manSIS:346, fest:29, short:110, inc:1,  total:307750 },
+  'MARCH-2026': { tsf:28100, sisReg:253500, sisAdd:27000, manTSF:31,  manSIS:341, fest:35, short:100, inc:2,  total:308600 },
+  'APR-2026':   { tsf:28100, sisReg:256500, sisAdd:27000, manTSF:30,  manSIS:347, fest:32, short:90,  inc:1,  total:311600 },
+  'MAY-2026':   { tsf:28100, sisReg:253500, sisAdd:27000, manTSF:31,  manSIS:341, fest:35, short:102, inc:0,  total:308600 },
+  'JUNE-2026':  { tsf:28100, sisReg:253500, sisAdd:27000, manTSF:30,  manSIS:341, fest:35, short:100, inc:1,  total:308600 },
+  'JULY-2026':  { tsf:28100, sisReg:252500, sisAdd:23000, manTSF:31,  manSIS:337, fest:30, short:105, inc:1,  total:303600 },
+  'AUG-2026':   { tsf:28100, sisReg:252000, sisAdd:23500, manTSF:31,  manSIS:336, fest:32, short:98,  inc:0,  total:303600 },
+  'SEPT-2026':  { tsf:28100, sisReg:251500, sisAdd:23500, manTSF:30,  manSIS:336, fest:32, short:98,  inc:0,  total:303100 },
+  'OCT-2026':   { tsf:28100, sisReg:252500, sisAdd:23500, manTSF:31,  manSIS:338, fest:32, short:100, inc:0,  total:304100 },
+  'NOV-2026':   { tsf:28100, sisReg:251500, sisAdd:25000, manTSF:30,  manSIS:336, fest:36, short:98,  inc:1,  total:304600 },
+  'DEC-2026':   { tsf:28100, sisReg:250500, sisAdd:24000, manTSF:31,  manSIS:334, fest:34, short:100, inc:1,  total:302600 }
+};
+const MONTH_LABELS = { 'JAN-2026':'Jan','FEB-2026':'Feb','MARCH-2026':'Mar','APR-2026':'Apr','MAY-2026':'May','JUNE-2026':'Jun','JULY-2026':'Jul','AUG-2026':'Aug','SEPT-2026':'Sep','OCT-2026':'Oct','NOV-2026':'Nov','DEC-2026':'Dec' };
+const ALL_KEYS = Object.keys(RAW);
+
+let trendChartInst, pieChartInst, salaryChartInst, manChartInst;
+
+function fmt(n) { return '₹' + Math.round(n).toLocaleString('en-IN'); }
+function fmtN(n) { return Math.round(n).toLocaleString('en-IN'); }
+
+function getFiltered() {
+  const m = document.getElementById('monthSel').value;
+  if (m === 'all') return ALL_KEYS.map(k => ({ key: k, ...RAW[k] }));
+  return RAW[m] ? [{ key: m, ...RAW[m] }] : [];
+}
+
+function avg(arr, field) { return arr.reduce((a,b) => a + b[field], 0) / arr.length; }
+function sum(arr, field) { return arr.reduce((a,b) => a + b[field], 0); }
+
+function renderCards(data) {
+  const single = data.length === 1;
+  const d = single ? data[0] : null;
+  const cards = [
+    { cls:'c1', icon:'💼', label:'Salary & Wages TSF Security Officer', value: single ? fmt(d.tsf) : fmt(avg(data,'tsf')), unit: single ? 'This Month' : 'Avg Per Month' },
+    { cls:'c2', icon:'🏢', label:'SIS Ltd (Regular) Cost', value: single ? fmt(d.sisReg) : fmt(avg(data,'sisReg')), unit: single ? 'This Month' : 'Avg Per Month' },
+    { cls:'c3', icon:'➕', label:'SIS Ltd (Additional) Cost', value: single ? fmt(d.sisAdd) : fmt(avg(data,'sisAdd')), unit: single ? 'This Month' : 'Avg Per Month' },
+    { cls:'c4', icon:'📅', label:'No of Man Days — TSF', value: single ? fmtN(d.manTSF) : fmtN(avg(data,'manTSF')), unit: single ? 'Days' : 'Avg Days' },
+    { cls:'c5', icon:'📊', label:'No of Man Days — SIS Ltd', value: single ? fmtN(d.manSIS) : fmtN(avg(data,'manSIS')), unit: single ? 'Days' : 'Avg Days' },
+    { cls:'c6', icon:'🎊', label:'Festival & Weekends Staff', value: single ? fmtN(d.fest) : fmtN(avg(data,'fest')), unit: single ? 'Staff' : 'Avg Staff' },
+    { cls:'c7', icon:'⚠️', label:'Shortage of Staff', value: single ? fmtN(d.short) : fmtN(avg(data,'short')), unit: single ? 'Staff' : 'Avg Shortage' },
+    { cls:'c8', icon:'📋', label:'Incident Report', value: single ? fmtN(d.inc) : fmtN(sum(data,'inc')), unit: single ? 'Incidents' : 'Total Incidents' },
+    { cls:'c9', icon:'💰', label:'Total Monthly Cost', value: single ? fmt(d.total) : fmt(sum(data,'total')), unit: single ? 'This Month' : 'Annual Total' }
+  ];
+  const g = document.getElementById('cardsGrid');
+  g.innerHTML = cards.map(c => `
+    <div class="card ${c.cls}">
+      <div class="card-icon">${c.icon}</div>
+      <div class="card-label">${c.label}</div>
+      <div class="card-value">${c.value}</div>
+      <div class="card-unit">${c.unit}</div>
+    </div>`).join('');
+}
+
+function renderTrend(data) {
+  const ctx = document.getElementById('trendChart');
+  if (trendChartInst) trendChartInst.destroy();
+  const labels = data.map(d => MONTH_LABELS[d.key] || d.key);
+  trendChartInst = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label:'Total Cost', data: data.map(d=>d.total), backgroundColor:'#6366f188', borderColor:'#6366f1', borderWidth:2, borderRadius:4 },
+        { label:'SIS Regular', data: data.map(d=>d.sisReg), backgroundColor:'#10b98188', borderColor:'#10b981', borderWidth:2, borderRadius:4 },
+        { label:'SIS Additional', data: data.map(d=>d.sisAdd), backgroundColor:'#f9731688', borderColor:'#f97316', borderWidth:2, borderRadius:4 }
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx => ' ₹' + ctx.parsed.y.toLocaleString('en-IN') } } },
+      scales: {
+        x:{ ticks:{ color:'#6b6b9a', font:{size:11}, autoSkip:false, maxRotation:45 }, grid:{ color:'#1e1e3a' } },
+        y:{ ticks:{ color:'#6b6b9a', font:{size:10}, callback: v => '₹'+Math.round(v/1000)+'K' }, grid:{ color:'#1e1e3a22' } }
+      }
+    }
+  });
+}
+
+function renderPie(data) {
+  const ctx = document.getElementById('pieChart');
+  if (pieChartInst) pieChartInst.destroy();
+  const tsfTotal = sum(data,'tsf'), sisReg = sum(data,'sisReg'), sisAdd = sum(data,'sisAdd');
+  const vals = [tsfTotal, sisReg, sisAdd];
+  const lbls = ['TSF Salary','SIS Regular','SIS Additional'];
+  const cols = ['#00d4ff','#7c3aed','#f97316'];
+  const grandTotal = vals.reduce((a,b)=>a+b,0);
+  document.getElementById('pieLegend').innerHTML = lbls.map((l,i)=>`<span><span class="leg-dot" style="background:${cols[i]};"></span>${l}: ${Math.round(vals[i]/grandTotal*100)}%</span>`).join('');
+  pieChartInst = new Chart(ctx, {
+    type:'doughnut',
+    data:{ labels:lbls, datasets:[{ data:vals, backgroundColor:cols, borderColor:'#12121f', borderWidth:3, hoverOffset:8 }] },
+    options:{ responsive:true, maintainAspectRatio:false, cutout:'65%', plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx => ' ₹'+ctx.parsed.toLocaleString('en-IN') } } } }
+  });
+}
+
+function renderSalary(data) {
+  const ctx = document.getElementById('salaryChart');
+  if (salaryChartInst) salaryChartInst.destroy();
+  const labels = data.map(d => MONTH_LABELS[d.key]||d.key);
+  const vals = data.map(d=>d.sisReg);
+  const maxV = Math.max(...vals), minV = Math.min(...vals);
+  const bgColors = vals.map(v => v===maxV ? '#10b981cc' : v===minV ? '#ef4444cc' : '#7c3aed55');
+  const bdrColors = vals.map(v => v===maxV ? '#10b981' : v===minV ? '#ef4444' : '#7c3aed');
+  salaryChartInst = new Chart(ctx, {
+    type:'bar',
+    data:{ labels, datasets:[{ label:'SIS Regular Salary', data:vals, backgroundColor:bgColors, borderColor:bdrColors, borderWidth:2, borderRadius:4 }] },
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx => ' ₹'+ctx.parsed.y.toLocaleString('en-IN') } } },
+      scales:{ x:{ ticks:{color:'#6b6b9a',font:{size:11},autoSkip:false,maxRotation:45}, grid:{color:'#1e1e3a'} }, y:{ ticks:{color:'#6b6b9a',font:{size:10},callback:v=>'₹'+Math.round(v/1000)+'K'}, grid:{color:'#1e1e3a22'} } }
+    }
+  });
+}
+
+function renderMan(data) {
+  const ctx = document.getElementById('manChart');
+  if (manChartInst) manChartInst.destroy();
+  const labels = data.map(d=>MONTH_LABELS[d.key]||d.key);
+  manChartInst = new Chart(ctx, {
+    type:'line',
+    data:{ labels, datasets:[
+      { label:'TSF Man Days', data:data.map(d=>d.manTSF), borderColor:'#00d4ff', backgroundColor:'#00d4ff22', tension:.4, pointRadius:4, pointBackgroundColor:'#00d4ff', fill:true },
+      { label:'SIS Man Days', data:data.map(d=>d.manSIS), borderColor:'#f59e0b', backgroundColor:'#f59e0b11', tension:.4, pointRadius:4, pointBackgroundColor:'#f59e0b', fill:false },
+      { label:'Shortage', data:data.map(d=>d.short), borderColor:'#ef4444', backgroundColor:'#ef444411', tension:.4, pointRadius:4, pointBackgroundColor:'#ef4444', fill:false, borderDash:[5,3] }
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false} },
+      scales:{ x:{ ticks:{color:'#6b6b9a',font:{size:11},autoSkip:false,maxRotation:45}, grid:{color:'#1e1e3a'} }, y:{ ticks:{color:'#6b6b9a',font:{size:10}}, grid:{color:'#1e1e3a22'} } }
+    }
+  });
+}
+
+function updatePeriodBadge() {
+  const m = document.getElementById('monthSel');
+  const y = document.getElementById('yearSel').value;
+  const label = m.value==='all' ? 'All Months' : m.options[m.selectedIndex].text;
+  document.getElementById('periodBadge').textContent = label + ' · ' + y;
+}
+
+function renderAll() {
+  const data = getFiltered();
+  if (!data.length) return;
+  updatePeriodBadge();
+  renderCards(data);
+  renderTrend(data);
+  renderPie(data);
+  renderSalary(data);
+  renderMan(data);
+}
+
+function resetFilters() {
+  document.getElementById('monthSel').value = 'all';
+  document.getElementById('yearSel').value = '2026';
+  renderAll();
+}
+
+document.getElementById('monthSel').addEventListener('change', renderAll);
+document.getElementById('yearSel').addEventListener('change', renderAll);
+
+renderAll();
+</script>
+
+</body>
+</html>
