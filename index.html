@@ -50,6 +50,17 @@
       .footer { border-top: 1px solid #1e1e3a; padding: 12px 28px; text-align: center; font-size: 10px; color: #3a3a5a; letter-spacing: 1px; text-transform: uppercase; }
       .no-data { color: #ff4d6d; font-size: 13px; text-align: center; padding: 20px; }
     </style>
+    <link rel="manifest" href="manifest.json">
+
+<meta name="theme-color" content="#00d4ff">
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js');
+  });
+}
+</script>
 </head>
 <body>
 
